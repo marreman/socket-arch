@@ -1,18 +1,13 @@
-var styles = {
-	name: {
-		color: "blue",
-		fontSize: 50
-	}
-};
-
 var UserListItem = React.createClass({
 	statics: {
 		contract: {
 			id: "integer",
-			name: "string"
+			name: "sstring"
 		}
 	},
 	render: function () {
+		var styles = { color: "blue", fontSize: 50 };
+
 		return (
 			<li style={styles.name} onClick={this.click}>
 				{this.props.user.name}

@@ -5,6 +5,39 @@ var io = require("socket.io")(http);
 var fs = require("fs");
 var Q = require("q");
 
+var contracts = {
+
+	user: {
+		id: "integer",
+		name: "string",
+		count: "integer"
+	},
+
+	validate: function (applicants) {
+		var contract, name, applicant;
+
+		for (name in applicants) {
+			if (!this.hasOwnProperty(name)) {
+				throw new Error("Contract '" + name + "' does not exist")
+			}
+
+			contract = this[name];
+			applicant = applicants[name];
+
+			for (prop in applicant) {
+				if (!contract.hasOwnProperty(prop)) {
+					throw new Error("Contract '" + name + "' does not have property " + prop);
+				}
+
+				if (contract[prop] !== applicant[prop]) {
+					throw new Error("Contract '" + name + "'s property " + prop + " is not of type " + applicant[prop]);
+				}
+			}
+		}
+	}
+
+}
+
 
 var db = {
 	read: function () {
@@ -17,12 +50,18 @@ var db = {
 		return deferred.promise;
 	},
 	fulfill: function (contract) {
-		return this.read();
+		try {
+			contracts.validate(contract);
+			return this.read();
+		} catch (error) {
+			console.log(error)
+		}
 	},
 	write: function (changes) {
 		this.read().then(function (data) {
 			console.log(data);
 			console.log(changes);
+		}).catch(function () {
 		});
 	}
 }
@@ -37,7 +76,9 @@ io.on("connection", function(socket){
 	socket.on("contract", function (contract) {
 		db.fulfill(contract).then(function (data) {
 			socket.emit("data", data);
-		})
+		}).catch(function () {
+			console.log("error");
+		});
 	});
 
 	socket.on("write", function (changes) {

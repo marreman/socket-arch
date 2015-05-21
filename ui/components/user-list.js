@@ -1,15 +1,11 @@
-
 var UserList = React.createClass({
 
 	statics: {
 		contract: {
-			users: {
-				type: "array",
-				props: _.extend({
-					id: "integer",
-					count: "integer"
-				}, UserListItem.contract)
-			}
+			users: _.extend({
+				id: "integer",
+				count: "integer"
+			}, UserListItem.contract)
 		}
 	},
 
